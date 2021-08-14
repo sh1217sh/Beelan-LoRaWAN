@@ -70,7 +70,7 @@ void LORA_Cycle(sBuffer *Data_Tx, sBuffer *Data_Rx, RFM_command_t *RFM_Command, 
 	unsigned char rx1_ch = LoRa_Settings->Channel_Rx;
 	#ifdef US_915   
     unsigned char rx1_dr = LoRa_Settings->Datarate_Tx+10;
-	#elif defined(EU_868)   
+	#elif defined(EU_868) || defined(KR_920)
     unsigned char rx1_dr = LoRa_Settings->Datarate_Tx;
 	#endif
 
@@ -95,6 +95,9 @@ void LORA_Cycle(sBuffer *Data_Tx, sBuffer *Data_Rx, RFM_command_t *RFM_Command, 
 			LoRa_Settings->Datarate_Rx = SF12BW500;   //set RX2 datarate 12
 			#elif defined(EU_868)
 			LoRa_Settings->Channel_Rx = CHRX2;    // set Rx2 channel 923.3 MHZ 
+			LoRa_Settings->Datarate_Rx = SF12BW125;   //set RX2 datarate 12
+			#elif defined(KR_920)
+			LoRa_Settings->Channel_Rx = CHRX2;    // set Rx2 channel 921.9 MHZ 
 			LoRa_Settings->Datarate_Rx = SF12BW125;   //set RX2 datarate 12
 			#endif
 			LORA_Receive_Data(Data_Rx, Session_Data, OTAA_Data, Message_Rx, LoRa_Settings);  //BUG DETECT SENDED PACKET ALWAYS (IT DOES UPDATE)
@@ -257,7 +260,11 @@ void LORA_Send_Data(sBuffer *Data_Tx, sLoRa_Session *Session_Data, sSettings *Lo
 	//Change channel for next message if hopping is activated
 	if(LoRa_Settings->Channel_Hopping == 0x01)
 	{
+	#if defined(KR_920)
+	if(LoRa_Settings->Channel_Tx < 0x06)
+	#else
 	if(LoRa_Settings->Channel_Tx < 0x07)
+	#endif
 	{
 		LoRa_Settings->Channel_Tx++;
 	}
@@ -464,7 +471,7 @@ static void Generate_DevNonce(unsigned char *DevNonce)
 {
 	unsigned int RandNumber;
 
-	RandNumber = random(0xFFFF);
+	RandNumber = random(0xFF);
 
 	DevNonce[0] = RandNumber & 0x00FF;
 	DevNonce[1] = (RandNumber >> 8) & 0x00FF;

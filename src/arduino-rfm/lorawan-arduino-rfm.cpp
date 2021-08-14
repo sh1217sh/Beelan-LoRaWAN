@@ -89,12 +89,16 @@ bool LoRaWANClass::init(void)
     // Rx
 #if defined(AS_923)
     LoRa_Settings.Datarate_Rx = 0x02;   //set to SF10 BW 125 kHz
-#elif defined(EU_868)
-    LoRa_Settings.Datarate_Rx = 0x03;   //set to SF9 BW 125 kHz
+#elif defined(EU_868) || defined(KR_920)
+    LoRa_Settings.Datarate_Rx = 0x00;   //set to SF9 BW 125 kHz
 #else //US_915 or AU_915
     LoRa_Settings.Datarate_Rx = 0x0C;   //set to SF8 BW 500 kHz
 #endif
+#if defined(KR_920)
+    LoRa_Settings.Channel_Rx = 0x07;
+#else
     LoRa_Settings.Channel_Rx = 0x08;    // set to recv channel
+#endif
 
     // Tx
 #if defined(US_915)
@@ -305,6 +309,11 @@ void LoRaWANClass::setDataRate(unsigned char data_rate)
     LoRa_Settings.Datarate_Tx = drate_common;
     LoRa_Settings.Datarate_Rx = data_rate + 0x0A;
   }
+#elif defined(KR_920)
+  if(drate_common <= 0x05) {
+      LoRa_Settings.Datarate_Tx = drate_common;
+      LoRa_Settings.Datarate_Rx = drate_common;
+  }
 #else
   //Check if the value is oke
   if(drate_common <= 0x06)
@@ -326,7 +335,7 @@ void LoRaWANClass::setChannel(unsigned char channel)
         LoRa_Settings.Channel_Rx = channel + 0x08;  
 #elif defined(AU_915)
         LoRa_Settings.Channel_Rx = channel + 0x08;  
-#elif defined(EU_868)  
+#elif defined(EU_868) || defined(KR_920)
         LoRa_Settings.Channel_Rx = channel;
 #endif
     } else if (channel == MULTI) {
@@ -438,6 +447,9 @@ void LoRaWANClass::randomChannel()
 #elif defined(EU_868)    
     freq_idx = random(0,7);
     LoRa_Settings.Channel_Rx=freq_idx;      // same rx and tx channel 
+#elif defined(KR_920)
+    freq_idx = random(0, 6);
+    LoRa_Settings.Channel_Rx = freq_idx;
 #else // US_915 or AU_915
     freq_idx = random(0,8);
     LoRa_Settings.Channel_Rx = freq_idx + 0x08;

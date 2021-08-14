@@ -5,13 +5,14 @@
 #define MAX_UPLINK_PAYLOAD_SIZE    220  
 #define MAX_DOWNLINK_PAYLOAD_SIZE   220
 
-#if !defined(AS_923) && !defined(EU_868) && !defined(US_915) && !defined(AU_915)
+#if !defined(AS_923) && !defined(EU_868) && !defined(US_915) && !defined(AU_915) && !defined(KR_920)
 
 //LoRaWAN freq band
 //#define AS_923
 //#define EU_868
-#define US_915
+//#define US_915
 //#define AU_915
+#define KR_920
 
 #ifdef US_915
     //Select the subband youre working on

@@ -104,11 +104,17 @@ typedef enum {
   CH4 = 4,
   CH5 = 5,
   CH6 = 6,
+#ifdef KR_920
+  CHRX2 = 7,
+#else
   CH7 = 7,
+#endif
 #ifdef EU_868
   CHRX2 = 8,
 #else
+  #ifndef KR_920
   CH8 = 8,
+  #endif
 #endif
   MULTI = 20
 } channel_t;
@@ -150,6 +156,13 @@ typedef enum {
     SF8BW125    = 0x04,
     SF7BW125    = 0x05,
     SF7BW250    = 0x06
+#elif defined(KR_920)
+    SF12BW125   = 0x00,
+    SF11BW125   = 0x01,
+    SF10BW125   = 0x02,
+    SF9BW125    = 0x03,
+    SF8BW125    = 0x04,
+    SF7BW125    = 0x05,
 #endif
 } dataRates_t;
 

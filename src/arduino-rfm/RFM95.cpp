@@ -236,7 +236,7 @@
     { 0xE7, 0xE0, 0x27}, //Rcv Channel [7] 927.5 Mhz / 61.035 Hz = 15196199 = 0xE7E027
   };
 #elif defined(AS_923)
-  static const PROGMEM unsigned char  [9][3] = {//[923.2 - 924.8] MHz
+  static const PROGMEM unsigned char LoRa_Frequency[9][3] = {//[923.2 - 924.8] MHz
     { 0xE6, 0xCC, 0xF4 }, //Channel [0], 923.2 MHz / 61.035 Hz = 15125748 = 0xE6CCF4
     { 0xE6, 0xD9, 0xC0 }, //Channel [1], 923.4 MHz / 61.035 Hz = 15129024 = 0xE6D9C0
     { 0xE6, 0xE6, 0x8D }, //Channel [2], 923.6 MHz / 61.035 Hz = 15132301 = 0xE6E68D
@@ -258,6 +258,17 @@
     { 0xD8, 0xEC, 0xF1 }, //Channel [6], 867.7 MHz / 61.035 Hz = 14216433 = 0xD8ECF1
     { 0xD8, 0xF9, 0xBE }, //Channel [7], 867.9 MHz / 61.035 Hz = 14219710 = 0xD8F9BE
     { 0xD9, 0x61, 0xBE }, // RX2 Receive channel 869.525 MHz / 61.035 Hz = 14246334 = 0xD961BE    
+  };
+#elif defined(KR_920)
+  static const PROGMEM unsigned char LoRa_Frequency[8][3] = {//[922.1 - 923.3] MHz
+    { 0xE6, 0x86, 0x8D }, //Channel [0], 922.1 MHz / 61.035 Hz = 15107725 = 0xE6868D
+    { 0xE6, 0x93, 0x5A }, //Channel [1], 922.3 MHz / 61.035 Hz = 15111002 = 0xE6935A
+    { 0xE6, 0xA0, 0x27 }, //Channel [2], 922.5 MHz / 61.035 Hz = 15114279 = 0xE6A027
+    { 0xE6, 0xAC, 0xF4 }, //Channel [3], 922.7 MHz / 61.035 Hz = 15117556 = 0xE6ACF4
+    { 0xE6, 0xB9, 0xC0 }, //Channel [4], 922.9 MHz / 61.035 Hz = 15120832 = 0xE6B9C0
+    { 0xE6, 0xC6, 0x8D }, //Channel [5], 923.1 MHz / 61.035 Hz = 15124109 = 0xE6C68D
+    { 0xE6, 0xD3, 0x5A }, //Channel [6], 923.3 MHz / 61.035 Hz = 15127386 = 0xE6D35A
+    { 0xE6, 0x79, 0xC0 }, // RX2 Receive channel 921.9 MHz / 61.035 Hz = 15104448 = 0xE679C0    
   };
 #endif
 
@@ -407,6 +418,27 @@ static void RFM_Change_Datarate(unsigned char Datarate)
     RFM_change_SF_BW(7,0x09);
     break;
   }
+#elif defined(KR_920)
+  switch (Datarate) {
+  case 0x00:  // SF12BW125
+    RFM_change_SF_BW(12,0x07);
+    break;
+  case 0x01:  // SF11BW125
+    RFM_change_SF_BW(11,0x07);
+    break;
+  case 0x02:  // SF10BW125
+    RFM_change_SF_BW(10,0x07);
+    break;
+  case 0x03:  // SF9BW125
+    RFM_change_SF_BW(9,0x07);
+    break;
+  case 0x04:  // SF8BW125
+    RFM_change_SF_BW(8,0x07);
+    break;
+  case 0x05:  // SF7BW125
+    RFM_change_SF_BW(7,0x07);
+    break;
+  }
 #else //EU_868 or AS_923
   switch (Datarate) {
   case 0x00:  // SF12BW125
@@ -453,6 +485,10 @@ static void RFM_Change_Channel(unsigned char Channel)
 #elif defined(EU_868)
   // in EU_868 v1.02 uses same freq for uplink and downlink
   if (Channel <= 0x08) 
+    for(unsigned char i = 0 ; i < 3 ; ++i)
+      RFM_Write(RFM_REG_FR_MSB + i, pgm_read_byte(&(LoRa_Frequency[Channel][i])));  
+#elif defined(KR_920)
+  if (Channel <= 0x07)
     for(unsigned char i = 0 ; i < 3 ; ++i)
       RFM_Write(RFM_REG_FR_MSB + i, pgm_read_byte(&(LoRa_Frequency[Channel][i])));  
 #else   //US915 or AU_915
